@@ -135,6 +135,10 @@ void threadPrepare(Thread* t, ThreadFunc entrypoint, void* arg, void* stack_top,
 //! @brief Returns the required size for thread-local storage (8-byte aligned) @see threadAttachLocalStorage
 size_t threadGetLocalStorageSize(void);
 
+// Sets an extra amount of thread-local storage to be allocated for threads created using
+// system calls (POSIX threads, C threads, C++ std::thread). Will be 8-byte aligned.
+void threadSetPthreadExtraTls(const size_t size);
+
 /*! @brief Attaches thread-local storage to a @ref Thread @p t
 	@param[in] storage 8-byte aligned memory buffer to use as thread-local storage,
 	or NULL to consume thread stack memory instead
