@@ -39,7 +39,7 @@ static SdioCard s_sdioCard;
 static Ar6kDev s_ar6kDev;
 alignas(4) static u8 s_ar6kWorkBuf[AR6K_WORK_BUF_SIZE];
 static WpaState s_wpaState;
-static u8 s_wpaIeBuf[0x20];
+static u8 s_wpaIeBuf[sizeof(WlanIeHdr) + 0xFF];
 
 static const u8 s_macAny[6] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 
@@ -168,8 +168,8 @@ static void _twlwifiOnAssoc(Ar6kDev* dev, Ar6kWmiEvtConnected* info)
 	unsigned remsize = info->assoc_req_len - 4;
 
 	WlanIeHdr* ie = wlanFindRsnOrWpaIe(ie_data, remsize);
-	unsigned ie_len;
-	if (ie && (ie_len = sizeof(WlanIeHdr) + ie->len) <= sizeof(s_wpaIeBuf)) {
+	if (ie) {
+		unsigned ie_len = sizeof(WlanIeHdr) + ie->len;
 		memcpy(s_wpaIeBuf, ie, ie_len);
 		s_wpaState.ie_len = ie_len;
 	} else {
