@@ -143,6 +143,14 @@ int __SYSCALL(cond_wait_recursive)(_COND_T* cond, _LOCK_RECURSIVE_T* lock, uint6
 	return 0;
 }
 
+static size_t extraTls = 0;
+
+void threadSetPthreadExtraTls(const size_t size)
+{
+	// make sure it's 8-byte aligned
+	extraTls = (size + 7) &~ 7;
+}
+
 int __SYSCALL(thread_create)(struct __pthread_t** thread, void* (*func)(void*), void* arg, void* stack_addr, size_t stack_size)
 {
 	if (((uptr)stack_addr & 7) || (stack_size & 7)) {
@@ -155,7 +163,7 @@ int __SYSCALL(thread_create)(struct __pthread_t** thread, void* (*func)(void*), 
 
 	size_t struct_sz = (sizeof(struct __pthread_t) + 7) &~ 7;
 
-	size_t needed_sz = struct_sz + threadGetLocalStorageSize();
+	size_t needed_sz = struct_sz + threadGetLocalStorageSize() + extraTls;
 	if (!stack_addr) {
 		needed_sz += stack_size;
 	}
